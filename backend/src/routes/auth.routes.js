@@ -8,7 +8,7 @@ const { verifyToken, requireRole } = require("../middleware/auth.middleware");
 // POST /api/auth/signup
 router.post("/signup", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, semester, section, academicYear } = req.body;
     if (!email || !password) return res.status(400).json({ message: "Email and password required" });
 
     const existing = await User.findOne({ email });
@@ -18,7 +18,14 @@ router.post("/signup", async (req, res) => {
     const hash = await bcrypt.hash(password, salt);
 
     // default role is student
-    const user = await User.create({ name, email, password: hash });
+    const user = await User.create({
+      name,
+      email,
+      password: hash,
+      semester: semester == null ? null : Number(semester),
+      section: section == null ? null : String(section),
+      academicYear: academicYear == null ? null : String(academicYear)
+    });
 
     res.status(201).json({ id: user._id, email: user.email, name: user.name, role: user.role });
   } catch (err) {
@@ -53,7 +60,7 @@ router.post("/login", async (req, res) => {
 // Admin-only: create user with specific role (teacher/admin)
 router.post("/create", verifyToken, requireRole("admin"), async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, semester, section, academicYear } = req.body;
     if (!email || !password || !role) return res.status(400).json({ message: "name,email,password,role required" });
     if (!["student", "teacher", "admin"].includes(role)) return res.status(400).json({ message: "Invalid role" });
 
@@ -63,7 +70,15 @@ router.post("/create", verifyToken, requireRole("admin"), async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
-    const user = await User.create({ name, email, password: hash, role });
+    const user = await User.create({
+      name,
+      email,
+      password: hash,
+      role,
+      semester: role === "student" && semester != null ? Number(semester) : null,
+      section: role === "student" && section != null ? String(section) : null,
+      academicYear: role === "student" && academicYear != null ? String(academicYear) : null
+    });
     res.status(201).json({ id: user._id, email: user.email, name: user.name, role: user.role });
   } catch (err) {
     console.error(err);
