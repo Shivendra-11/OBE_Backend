@@ -12,11 +12,35 @@ module.exports = mongoose.model(
     sectionTeachers: [
       {
         section: { type: String, required: true },
-        teacher: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
-      }
+        teacher: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+      },
     ],
 
     // Legacy single-teacher assignment (kept for backward compatibility)
-    assignedTeacher: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }
-  })
+    assignedTeacher: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    // Aggregated CO attainment stored on course for quick access
+    coAttainment: {
+      overallLevel: { type: Number, default: null },
+      CT_FINAL: {
+        totalY: { type: Number, default: null },
+        totalN: { type: Number, default: null },
+        percentage: { type: Number, default: null },
+        level: { type: Number, default: null },
+      },
+      ASSIGNMENT_FINAL: {
+        totalY: { type: Number, default: null },
+        totalN: { type: Number, default: null },
+        percentage: { type: Number, default: null },
+        level: { type: Number, default: null },
+      },
+    },
+  }),
 );
