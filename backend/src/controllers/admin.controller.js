@@ -6,6 +6,7 @@ const User = require("../models/User");
 const Exam = require("../models/Exam");
 const COAttainment = require("../models/COAttainment");
 const CourseAttainment = require("../models/CourseAttainment");
+const ActualCOPOMapping = require("../models/ActualCOPOMapping");
 const attainmentService = require("../services/attainment.service");
 
 const normalizeSection = (s) => (s == null ? null : String(s).trim() || null);
@@ -473,6 +474,35 @@ exports.computeCourseOverall = async (req, res) => {
     const course = await Course.findById(courseId)
       .select("coAttainment")
       .lean();
+
+    const overallLevel =
+      (course && course.coAttainment && course.coAttainment.overallLevel) ||
+      (result && result.OVERALL && result.OVERALL.level) ||
+      0;
+
+    // Build Actual CO-PO mapping: for each COPOMapping entry, compute actualLevel = (mapping.level * overallLevel) / 3
+    try {
+      const mappings = await COPOMapping.find({ course: courseId }).lean();
+      // delete existing actual mappings for this course
+      await ActualCOPOMapping.deleteMany({ course: courseId });
+
+      if (Array.isArray(mappings) && mappings.length > 0 && overallLevel > 0) {
+        const docs = mappings.map((m) => {
+          const mappingLevel = Number(m.level || 0);
+          const actualLevel = (mappingLevel * overallLevel) / 3;
+          return {
+            course: courseId,
+            CO: Number(m.CO),
+            PO: String(m.PO),
+            level: Number(Number(actualLevel).toFixed(2)),
+          };
+        });
+        await ActualCOPOMapping.insertMany(docs, { ordered: false });
+      }
+    } catch (e) {
+      console.error("Failed to compute/persist ActualCOPOMapping:", e);
+    }
+
     return res.json({
       courseId,
       result,
