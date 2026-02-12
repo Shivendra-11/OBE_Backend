@@ -1,0 +1,68 @@
+.exams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.exam-card {
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-fast);
+}
+
+.exam-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.exam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.exam-type-badge {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-hover);
+    color: var(--text-secondary);
+}
+
+.exam-type-badge.ct1,
+.exam-type-badge.ct2,
+.exam-type-badge.ct3 {
+    background: var(--primary-100);
+    color: var(--primary-700);
+}
+
+.exam-type-badge.assignment {
+    background: var(--accent-100);
+    color: var(--accent-700);
+}
+
+.exam-name {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.exam-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-top: auto;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.create-exam-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}

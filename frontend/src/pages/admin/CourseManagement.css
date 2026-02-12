@@ -1,0 +1,39 @@
+.course-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.course-table th {
+    text-align: left;
+    padding: var(--spacing-md);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.course-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.course-code-badge {
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--primary-600);
+    background: var(--primary-50);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--primary-100);
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.create-course-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}

@@ -1,0 +1,59 @@
+.po-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.po-table th {
+    text-align: left;
+    padding: var(--spacing-md);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.po-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+}
+
+.po-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--primary-100);
+    color: var(--primary-700);
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: var(--text-sm);
+}
+
+.po-description {
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: var(--text-base);
+}
+
+.form-textarea {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color var(--transition-fast);
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.create-po-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}

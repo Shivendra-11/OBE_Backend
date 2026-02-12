@@ -1,0 +1,293 @@
+:root {
+  /* Color Palette - Premium HSL Colors */
+  --primary-hue: 250;
+  --primary-sat: 85%;
+  --primary-light: 60%;
+  
+  --primary-50: hsl(var(--primary-hue), var(--primary-sat), 95%);
+  --primary-100: hsl(var(--primary-hue), var(--primary-sat), 90%);
+  --primary-200: hsl(var(--primary-hue), var(--primary-sat), 80%);
+  --primary-300: hsl(var(--primary-hue), var(--primary-sat), 70%);
+  --primary-400: hsl(var(--primary-hue), var(--primary-sat), var(--primary-light));
+  --primary-500: hsl(var(--primary-hue), var(--primary-sat), 50%);
+  --primary-600: hsl(var(--primary-hue), var(--primary-sat), 40%);
+  --primary-700: hsl(var(--primary-hue), var(--primary-sat), 30%);
+  --primary-800: hsl(var(--primary-hue), var(--primary-sat), 20%);
+  --primary-900: hsl(var(--primary-hue), var(--primary-sat), 10%);
+
+  --accent-hue: 330;
+  --accent-sat: 80%;
+  --accent-400: hsl(var(--accent-hue), var(--accent-sat), 60%);
+  --accent-500: hsl(var(--accent-hue), var(--accent-sat), 50%);
+  --accent-600: hsl(var(--accent-hue), var(--accent-sat), 40%);
+
+  --success-hue: 150;
+  --success-400: hsl(var(--success-hue), 70%, 55%);
+  --success-500: hsl(var(--success-hue), 70%, 45%);
+  
+  --warning-hue: 40;
+  --warning-400: hsl(var(--warning-hue), 90%, 60%);
+  --warning-500: hsl(var(--warning-hue), 90%, 50%);
+  
+  --danger-hue: 0;
+  --danger-400: hsl(var(--danger-hue), 80%, 60%);
+  --danger-500: hsl(var(--danger-hue), 80%, 50%);
+
+  /* Neutral Colors */
+  --gray-50: hsl(220, 20%, 98%);
+  --gray-100: hsl(220, 15%, 95%);
+  --gray-200: hsl(220, 15%, 90%);
+  --gray-300: hsl(220, 15%, 80%);
+  --gray-400: hsl(220, 15%, 65%);
+  --gray-500: hsl(220, 15%, 50%);
+  --gray-600: hsl(220, 15%, 40%);
+  --gray-700: hsl(220, 15%, 30%);
+  --gray-800: hsl(220, 15%, 20%);
+  --gray-900: hsl(220, 15%, 10%);
+
+  /* Background & Surface */
+  --bg-primary: hsl(220, 25%, 98%);
+  --bg-secondary: hsl(220, 20%, 95%);
+  --surface: hsl(0, 0%, 100%);
+  --surface-elevated: hsl(0, 0%, 100%);
+
+  /* Text Colors */
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-600);
+  --text-tertiary: var(--gray-500);
+  --text-on-primary: hsl(0, 0%, 100%);
+
+  /* Border & Divider */
+  --border-color: var(--gray-200);
+  --divider-color: var(--gray-200);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  /* Z-index */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}
+
+/* Dark Mode Variables */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: hsl(220, 25%, 8%);
+    --bg-secondary: hsl(220, 20%, 12%);
+    --surface: hsl(220, 20%, 15%);
+    --surface-elevated: hsl(220, 20%, 18%);
+
+    --text-primary: hsl(0, 0%, 95%);
+    --text-secondary: var(--gray-400);
+    --text-tertiary: var(--gray-500);
+
+    --border-color: var(--gray-700);
+    --divider-color: var(--gray-700);
+
+    --glass-bg: rgba(30, 30, 40, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+}
+
+/* Reset & Base Styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-md);
+}
+
+h1 { font-size: var(--text-4xl); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+h5 { font-size: var(--text-lg); }
+h6 { font-size: var(--text-base); }
+
+p {
+  margin-bottom: var(--spacing-md);
+}
+
+a {
+  color: var(--primary-500);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-600);
+}
+
+/* Utility Classes */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn var(--transition-base) ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Focus Styles */
+*:focus-visible {
+  outline: 2px solid var(--primary-400);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--primary-400);
+  color: var(--text-on-primary);
+}

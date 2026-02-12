@@ -1,0 +1,66 @@
+.course-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm);
+}
+
+.course-select {
+    flex: 1;
+    max-width: 400px;
+}
+
+.co-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.co-table th {
+    text-align: left;
+    padding: var(--spacing-md);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.co-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+}
+
+.co-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--accent-100);
+    color: var(--accent-700);
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: var(--text-sm);
+}
+
+.co-description {
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: var(--text-base);
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
+}
+
+.py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.create-co-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
