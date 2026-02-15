@@ -3,10 +3,20 @@ const router = express.Router();
 const teacher = require("../controllers/teacher.controller");
 const { verifyToken, requireRole } = require("../middleware/auth.middleware");
 
+// Routes
+router.get("/courses", verifyToken, requireRole("teacher","admin"), teacher.listAssignedCourses);
+router.get("/exams/:courseId", verifyToken, requireRole("teacher","admin"), teacher.getExamsForCourse);
+
+// Routes
+router.get("/courses", verifyToken, requireRole("teacher","admin"), teacher.listAssignedCourses);
+router.get("/exams/:courseId", verifyToken, requireRole("teacher","admin"), teacher.getExamsForCourse);
+router.get("/exam/:examId", verifyToken, requireRole("teacher","admin"), teacher.getExamDetails);
+
 router.post("/exam", verifyToken, requireRole("teacher","admin"), teacher.createExam);
 router.post("/exam-with-questions", verifyToken, requireRole("teacher","admin"), teacher.createExamWithQuestions);
 router.post("/question", verifyToken, requireRole("teacher","admin"), teacher.createQuestion);
 router.post("/question/bulk", verifyToken, requireRole("teacher","admin"), teacher.createQuestionBulk);
+router.delete("/question/:questionId", verifyToken, requireRole("teacher","admin"), teacher.deleteQuestion);
 router.post("/marks", verifyToken, requireRole("teacher","admin"), teacher.enterMarks);
 
 // Marksheet UX: choose exam -> fetch students + questions + existing marks, then submit updates

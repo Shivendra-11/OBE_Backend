@@ -89,6 +89,52 @@ const resolveTeacherSection = ({ role, sections }, requestedSection) => {
   return { ok: true, section: sections[0] };
 };
 
+exports.listAssignedCourses = async (req, res) => {
+  try {
+    const teacherId = req.user.id;
+    // Find courses where sectionTeachers.teacher matches teacherId
+    const courses = await Course.find({
+      "sectionTeachers.teacher": teacherId
+    }).select("code name semester academicYear sectionTeachers");
+
+    // Enhance course object to show only assigned sections for this teacher
+    const result = courses.map(course => {
+      const mySections = getTeacherSectionsForCourse(course, teacherId);
+      return {
+        _id: course._id,
+        code: course.code,
+        name: course.name,
+        semester: course.semester,
+        academicYear: course.academicYear,
+        sections: mySections
+      };
+    });
+    
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getExamsForCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    // Check assignment
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: "Course not found" });
+
+    const authz = await ensureTeacherAssignedToCourse(req, course);
+    if (!authz.ok) return res.status(authz.status).json({ message: authz.message });
+
+    const exams = await Exam.find({ course: courseId }).sort({ createdAt: -1 });
+    res.json(exams);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 exports.createExam = async (req, res) => {
   try {
     let { courseId, courseCode, name, type } = req.body;
@@ -116,6 +162,24 @@ exports.createExam = async (req, res) => {
 
     const exam = await Exam.create({ name, course: courseId, type });
     res.status(201).json(exam);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getExamDetails = async (req, res) => {
+  try {
+    const { examId } = req.params;
+    const exam = await Exam.findById(examId).populate("course", "code name semester academicYear");
+    if (!exam) return res.status(404).json({ message: "Exam not found" });
+
+    const authz = await ensureTeacherAssignedToCourse(req, exam.course);
+    if (!authz.ok) return res.status(authz.status).json({ message: authz.message });
+
+    const questions = await Question.find({ exam: examId }).sort({ _id: 1 }); // Sort by creation approx
+
+    res.json({ exam, questions });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -280,6 +344,38 @@ exports.createQuestionBulk = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+exports.deleteQuestion = async (req, res) => {
+  try {
+    const { questionId } = req.params;
+    const question = await Question.findById(questionId).populate({
+      path: "exam",
+      select: "course"
+    });
+    
+    if (!question) return res.status(404).json({ message: "Question not found" });
+    
+    // Check auth
+    if (!question.exam || !question.exam.course) {
+       // Orphaned question, just delete if admin? Or teacher assigned?
+       // Safe delete
+       await Question.findByIdAndDelete(questionId);
+       return res.json({ message: "Question deleted" });
+    }
+
+    const authz = await ensureTeacherAssignedToCourse(req, question.exam.course);
+    if (!authz.ok) return res.status(authz.status).json({ message: authz.message });
+
+    await Question.findByIdAndDelete(questionId);
+    // Also cleanup marks? Ideally yes
+    await StudentMark.deleteMany({ question: questionId });
+
+    res.json({ message: "Question deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

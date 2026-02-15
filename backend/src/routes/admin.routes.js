@@ -18,6 +18,14 @@ router.post(
   admin.assignTeacherToCourse,
 );
 router.get("/courses", verifyToken, requireRole("admin"), admin.listCourses);
+router.get("/users", verifyToken, requireRole("admin"), admin.listUsers);
+
+// PO Routes
+router.get("/po", verifyToken, requireRole("admin"), admin.listPOs);
+
+// CO Routes
+router.get("/co/:courseId", verifyToken, requireRole("admin"), admin.listCOs);
+
 router.get("/mappings", verifyToken, requireRole("admin"), admin.listMappings);
 router.get(
   "/exam-co/:examId",
@@ -36,6 +44,13 @@ router.post(
   verifyToken,
   requireRole("admin"),
   admin.computeCourseOverall,
+);
+
+router.post(
+  "/generate-mapping",
+  verifyToken,
+  requireRole("admin"),
+  admin.generateAIMapping,
 );
 
 module.exports = router;

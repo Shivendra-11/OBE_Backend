@@ -58,7 +58,11 @@ export const adminAPI = {
   },
 
   mapCOPOBulk: async (courseId, courseCode, mappings) => {
-    const response = await api.post('/admin/map/bulk', { courseId, courseCode, mappings });
+    // Support both positional arguments and single object argument
+    const payload = typeof courseId === 'object' && courseId !== null 
+      ? courseId 
+      : { courseId, courseCode, mappings };
+    const response = await api.post('/admin/map/bulk', payload);
     return response.data;
   },
 
@@ -91,6 +95,12 @@ export const adminAPI = {
 
   computeCourseOverall: async (courseId) => {
     const response = await api.post(`/admin/course-attainment/${courseId}/compute-overall`);
+    return response.data;
+  },
+
+  // AI CO-PO Mapping Generation
+  generateAIMapping: async (courseOutcomes) => {
+    const response = await api.post('/admin/generate-mapping', { courseOutcomes });
     return response.data;
   },
 };

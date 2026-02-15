@@ -14,6 +14,7 @@ const Sidebar = () => {
     { to: '/admin/co-po-mapping', label: 'CO-PO Mapping', icon: '🔗' },
     { to: '/admin/teacher-assignment', label: 'Teacher Assignment', icon: '👨‍🏫' },
     { to: '/admin/attainment-reports', label: 'Attainment Reports', icon: '📈' },
+    { to: '/admin/ai-mapping', label: 'AI CO-PO Mapping', icon: '🤖' },
   ];
 
   const teacherLinks = [

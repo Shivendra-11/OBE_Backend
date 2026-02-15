@@ -86,6 +86,7 @@ const Signup = () => {
               onChange={handleChange}
               placeholder="Enter your full name"
               required
+              autoComplete="name"
             />
 
             <Input
@@ -96,6 +97,7 @@ const Signup = () => {
               onChange={handleChange}
               placeholder="Enter your email"
               required
+              autoComplete="email"
             />
 
             <Input
@@ -106,6 +108,7 @@ const Signup = () => {
               onChange={handleChange}
               placeholder="Create a password"
               required
+              autoComplete="new-password"
             />
 
             <div className="auth-form-row">

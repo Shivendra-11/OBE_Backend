@@ -8,10 +8,27 @@ const COAttainment = require("../models/COAttainment");
 const CourseAttainment = require("../models/CourseAttainment");
 const ActualCOPOMapping = require("../models/ActualCOPOMapping");
 const attainmentService = require("../services/attainment.service");
+const geminiService = require("../services/gemini.service");
 
 const normalizeSection = (s) => (s == null ? null : String(s).trim() || null);
 
 const getLevel = (p) => (p >= 70 ? 3 : p >= 60 ? 2 : p >= 50 ? 1 : 0);
+
+exports.listUsers = async (req, res) => {
+  try {
+    const { role } = req.query;
+    const filter = {};
+    if (role) filter.role = role;
+    
+    const users = await User.find(filter)
+      .select('name email role semester section academicYear')
+      .sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 exports.createPO = async (req, res) => {
   try {
@@ -106,6 +123,35 @@ exports.createCO = async (req, res) => {
       description,
     });
     res.status(201).json(co);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.listPOs = async (req, res) => {
+  try {
+    const pos = await ProgramOutcome.find().sort({ code: 1 });
+    res.json(pos);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.listCOs = async (req, res) => {
+  try {
+    let { courseId } = req.params;
+    
+    // Resolve course code if needed (though param is likely ID, staying consistent)
+    if (courseId && !/^[0-9a-fA-F]{24}$/.test(courseId)) {
+        const c = await Course.findOne({ code: courseId });
+        if (!c) return res.status(404).json({ message: "Course not found" });
+        courseId = c._id;
+    }
+
+    const cos = await CourseOutcome.find({ course: courseId }).sort({ number: 1 });
+    res.json(cos);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -224,6 +270,10 @@ exports.mapCOPoBulk = async (req, res) => {
     if (docs.length === 0)
       return res.status(400).json({ message: "No valid mappings" });
 
+    // Important: Clear existing mappings for this course before saving new ones
+    // to prevent duplicates and ensure visual consistency between AI and Manual modules.
+    await COPOMapping.deleteMany({ course: courseId });
+
     const created = await COPOMapping.insertMany(docs, { ordered: false });
     res.status(201).json({ count: created.length, data: created });
   } catch (err) {
@@ -305,7 +355,21 @@ exports.listCourses = async (req, res) => {
 
 exports.listMappings = async (req, res) => {
   try {
-    const mappings = await COPOMapping.find()
+    const { courseId } = req.query;
+    const filter = {};
+    
+    if (courseId) {
+      // Handle course code or ID
+      if (!/^[0-9a-fA-F]{24}$/.test(courseId)) {
+         const c = await Course.findOne({ code: courseId });
+         if (c) filter.course = c._id;
+         else return res.json([]); // Course not found, return empty
+      } else {
+         filter.course = courseId;
+      }
+    }
+
+    const mappings = await COPOMapping.find(filter)
       .populate("course", "code name")
       .lean();
     res.json(mappings);
@@ -511,5 +575,59 @@ exports.computeCourseOverall = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// AI-powered CO-PO Mapping Generation using Gemini
+exports.generateAIMapping = async (req, res) => {
+  try {
+    const { courseOutcomes } = req.body;
+
+    // Validate input
+    if (!Array.isArray(courseOutcomes) || courseOutcomes.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "courseOutcomes array is required (minimum 1 CO)" });
+    }
+
+    // Ensure all entries are non-empty strings
+    const cleanedCOs = courseOutcomes
+      .map((co) => String(co).trim())
+      .filter((co) => co.length > 0);
+
+    if (cleanedCOs.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "At least one valid Course Outcome is required" });
+    }
+
+    // Call Gemini service
+    const mapping = await geminiService.generateCOPOMapping(cleanedCOs);
+
+    res.json({
+      success: true,
+      mapping,
+      courseOutcomes: cleanedCOs,
+      poDefinitions: geminiService.AKTU_POS,
+    });
+  } catch (err) {
+    console.error("AI Mapping Error:", err);
+
+    if (err.message && err.message.includes("GEMINI_API_KEY")) {
+      return res.status(500).json({ message: err.message });
+    }
+
+    if (err instanceof SyntaxError) {
+      return res
+        .status(500)
+        .json({ message: "AI returned invalid JSON. Please try again." });
+    }
+
+    res
+      .status(500)
+      .json({ 
+        message: "Failed to generate mapping.",
+        error: err.message || String(err)
+      });
   }
 };

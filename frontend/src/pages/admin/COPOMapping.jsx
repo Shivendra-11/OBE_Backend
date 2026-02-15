@@ -82,6 +82,18 @@ const COPOMapping = () => {
     setSuccess(''); // Clear success message on edit
   };
 
+  const getCellClass = (level) => {
+    if (level === 3) return 'cell-high';
+    if (level === 2) return 'cell-medium';
+    if (level === 1) return 'cell-low';
+    return 'cell-empty';
+  };
+
+  const getPOName = (poCodeOrId) => {
+    const po = pos.find(p => p.code === poCodeOrId || p._id === poCodeOrId);
+    return po ? po.name : poCodeOrId;
+  };
+
   const handleSave = async () => {
     setSaveLoading(true);
     setError('');
@@ -210,19 +222,18 @@ const COPOMapping = () => {
                           {pos.map(po => {
                             const key = `${co.number}-${po.code}`;
                             const val = mappings[key] || 0;
-                            return (
-                              <td key={po._id} className="text-center">
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="3"
-                                  className={`matrix-input level-${val}`}
-                                  value={val}
-                                  onChange={(e) => handleCellChange(co.number, po.code, e.target.value)}
-                                  // 0, 1, 2, 3
-                                />
-                              </td>
-                            );
+                          <td key={po._id} className={`text-center cell-interactive-wrapper ${getCellClass(val)}`}>
+                            <div className="cell-content-wrapper" title={`CO${co.number} - ${po.code}: ${val || 'None'}`}>
+                              <input
+                                type="number"
+                                min="0"
+                                max="3"
+                                className={`matrix-input-enhanced level-${val}`}
+                                value={val}
+                                onChange={(e) => handleCellChange(co.number, po.code, e.target.value)}
+                              />
+                            </div>
+                          </td>
                           })}
                         </tr>
                       ))}

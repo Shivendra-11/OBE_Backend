@@ -71,6 +71,7 @@ const Login = () => {
               onChange={handleChange}
               placeholder="Enter your email"
               required
+              autoComplete="username"
             />
 
             <Input
@@ -81,6 +82,7 @@ const Login = () => {
               onChange={handleChange}
               placeholder="Enter your password"
               required
+              autoComplete="current-password"
             />
 
             <Button

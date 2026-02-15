@@ -15,6 +15,7 @@ import CourseOutcomes from './pages/admin/CourseOutcomes';
 import COPOMapping from './pages/admin/COPOMapping';
 import TeacherAssignment from './pages/admin/TeacherAssignment';
 import AttainmentReports from './pages/admin/AttainmentReports';
+import AIMapping from './pages/admin/AIMapping';
 
 // Teacher Pages
 import TeacherDashboard from './pages/teacher/Dashboard';
@@ -136,6 +137,14 @@ const AppRouter = () => {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AttainmentReports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/ai-mapping"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AIMapping />
               </ProtectedRoute>
             }
           />
