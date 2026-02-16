@@ -29,5 +29,7 @@ router.post("/ct-final/:courseId", verifyToken, requireRole("teacher","admin"), 
 router.post("/assignment-final/:courseId", verifyToken, requireRole("teacher","admin"), teacher.calculateAssignmentFinal);
 router.post("/overall/:courseId", verifyToken, requireRole("teacher","admin"), teacher.calculateOverall);
 router.get("/course-attainment/:courseId", verifyToken, requireRole("teacher","admin"), teacher.getCourseAttainment);
+router.get("/students", verifyToken, requireRole("teacher", "admin"), teacher.getStudents);
+router.get("/course-cos/:courseId", verifyToken, requireRole("teacher", "admin"), teacher.getCourseCOs);
 
 module.exports = router;

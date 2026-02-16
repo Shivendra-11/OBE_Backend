@@ -5,6 +5,7 @@ module.exports = mongoose.model(
   new mongoose.Schema({
     exam: { type: mongoose.Schema.Types.ObjectId, ref: "Exam" },
     CO: Number,
-    maxMarks: Number
+    maxMarks: Number,
+    description: String
   })
 );

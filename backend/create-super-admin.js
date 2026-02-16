@@ -15,9 +15,9 @@ async function createSuperAdmin() {
     });
     console.log("✓ MongoDB connected");
 
-    const email = "superadmin@obe.com";
-    const password = "SuperAdmin123!";
-    const name = "Super Administrator";
+    const email = "admin@example.com";
+    const password = "Admin123!";
+    const name = "System Administrator";
 
     // Check if user exists
     const existing = await User.findOne({ email });
@@ -32,10 +32,6 @@ async function createSuperAdmin() {
       } else {
           console.log("✓ Admin already exists with this email.");
       }
-      // We strictly shouldn't overwrite password unless asked, but for a "create" request implies getting access.
-      // Let's just create a new one if this one exists, or reset password?
-      // User asked "create a new admin", so let's stick to the specific email.
-      // If it exists, I'll just report it exists.
     } else {
         const hash = await bcrypt.hash(password, 10);
         const admin = await User.create({

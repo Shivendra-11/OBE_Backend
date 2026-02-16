@@ -8,7 +8,7 @@ const { verifyToken, requireRole } = require("../middleware/auth.middleware");
 // POST /api/auth/signup
 router.post("/signup", async (req, res) => {
   try {
-    const { name, email, password, semester, section, academicYear } = req.body;
+    const { name, email, password, studentId, semester, section, academicYear } = req.body;
     if (!email || !password)
       return res.status(400).json({ message: "Email and password required" });
 
@@ -24,6 +24,7 @@ router.post("/signup", async (req, res) => {
       name,
       email,
       password: hash,
+      studentId: studentId == null ? null : String(studentId).trim(),
       semester: semester == null ? null : Number(semester),
       section: section == null ? null : String(section),
       academicYear: academicYear == null ? null : String(academicYear),
@@ -83,7 +84,7 @@ router.post("/login", async (req, res) => {
 // Admin-only: create user with specific role (teacher/admin)
 router.post("/create", verifyToken, requireRole("admin"), async (req, res) => {
   try {
-    const { name, email, password, role, semester, section, academicYear } =
+    const { name, email, password, role, studentId, semester, section, academicYear } =
       req.body;
     if (!email || !password || !role)
       return res
@@ -104,6 +105,8 @@ router.post("/create", verifyToken, requireRole("admin"), async (req, res) => {
       email,
       password: hash,
       role,
+      studentId:
+        role === "student" && studentId != null ? String(studentId).trim() : null,
       semester:
         role === "student" && semester != null ? Number(semester) : null,
       section: role === "student" && section != null ? String(section) : null,
@@ -144,7 +147,7 @@ router.post(
       const errors = [];
 
       for (let i = 0; i < users.length; i++) {
-        const { name, email, password, role, semester, section, academicYear } =
+        const { name, email, password, role, studentId, semester, section, academicYear } =
           users[i];
 
         // Validate required fields
@@ -179,6 +182,8 @@ router.post(
             email,
             password: hash,
             role,
+            studentId:
+              role === "student" && studentId != null ? String(studentId).trim() : null,
             semester:
               role === "student" && semester != null ? Number(semester) : null,
             section:
@@ -194,6 +199,7 @@ router.post(
             email: user.email,
             name: user.name,
             role: user.role,
+            studentId: user.studentId,
             semester: user.semester,
             section: user.section,
             academicYear: user.academicYear,

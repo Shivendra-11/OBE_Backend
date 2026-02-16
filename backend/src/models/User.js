@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ["student", "teacher", "admin"], default: "student" },
 
   // Student-only fields (optional for backward compatibility)
+  studentId: { type: String, default: null }, // Roll Number
   semester: { type: Number, default: null },
   section: { type: String, default: null },
   // Example: "2022-2026"

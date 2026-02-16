@@ -16,12 +16,15 @@ const getLevel = (p) => (p >= 70 ? 3 : p >= 60 ? 2 : p >= 50 ? 1 : 0);
 
 exports.listUsers = async (req, res) => {
   try {
-    const { role } = req.query;
+    const { role, semester, section, academicYear } = req.query;
     const filter = {};
     if (role) filter.role = role;
+    if (semester) filter.semester = Number(semester);
+    if (section) filter.section = String(section).trim();
+    if (academicYear) filter.academicYear = String(academicYear).trim();
     
     const users = await User.find(filter)
-      .select('name email role semester section academicYear')
+      .select('name email role semester section academicYear studentId')
       .sort({ createdAt: -1 });
     res.json(users);
   } catch (err) {
@@ -77,11 +80,25 @@ exports.createCourse = async (req, res) => {
         .json({ message: "code, name, semester and academicYear required" });
     }
 
+    // [New] Duplicate Course Prevention
+    const existingCourse = await Course.findOne({
+      code: String(code).trim(),
+      semester: Number(semester),
+      academicYear: String(academicYear).trim(),
+    });
+
+    if (existingCourse) {
+      return res.status(409).json({
+        message: "A course with this code, semester, and academic year already exists",
+        course: existingCourse,
+      });
+    }
+
     const course = await Course.create({
-      code,
-      name,
-      semester,
-      academicYear,
+      code: String(code).trim(),
+      name: String(name).trim(),
+      semester: Number(semester),
+      academicYear: String(academicYear).trim(),
       sectionTeachers: [],
     });
 
@@ -284,57 +301,65 @@ exports.mapCOPoBulk = async (req, res) => {
 
 exports.assignTeacherToCourse = async (req, res) => {
   try {
-    let { courseId, courseCode, teacherId, section } = req.body;
-    if ((!courseId && !courseCode) || !teacherId || !section) {
+    let { courseId, courseIds, teacherId, teacherIds, section, sections } = req.body;
+    
+    // Normalize IDs to arrays
+    const finalCourseIds = courseIds || (courseId ? [courseId] : []);
+    const finalTeacherIds = teacherIds || (teacherId ? [teacherId] : []);
+    const finalSections = sections || (section ? String(section).split(',').map(s => s.trim()) : []);
+
+    if (finalCourseIds.length === 0 || finalTeacherIds.length === 0 || finalSections.length === 0) {
       return res.status(400).json({
-        message: "courseId/courseCode, teacherId and section required",
-      });
-    }
-    if (!courseId && courseCode) {
-      const c = await Course.findOne({ code: courseCode });
-      if (!c)
-        return res
-          .status(404)
-          .json({ message: "Course not found for provided courseCode" });
-      courseId = c._id;
-    }
-    const teacher = await User.findById(teacherId);
-    if (!teacher || teacher.role !== "teacher")
-      return res.status(400).json({ message: "Invalid teacher" });
-
-    const course = await Course.findById(courseId);
-    if (!course) return res.status(404).json({ message: "Course not found" });
-
-    const normalizedSection = String(section).trim();
-    if (!normalizedSection)
-      return res.status(400).json({ message: "section required" });
-
-    course.sectionTeachers = Array.isArray(course.sectionTeachers)
-      ? course.sectionTeachers
-      : [];
-    const idx = course.sectionTeachers.findIndex(
-      (st) =>
-        String(st.section).toLowerCase() === normalizedSection.toLowerCase(),
-    );
-    if (idx >= 0) {
-      course.sectionTeachers[idx].teacher = teacherId;
-    } else {
-      course.sectionTeachers.push({
-        section: normalizedSection,
-        teacher: teacherId,
+        message: "Courses, Teachers, and Sections are required",
       });
     }
 
-    // Keep legacy field in sync only if there is exactly one section assignment.
-    // (Legacy logic expects a single teacher per course.)
-    if (course.sectionTeachers.length === 1) {
-      course.assignedTeacher = course.sectionTeachers[0].teacher;
-    } else {
-      course.assignedTeacher = null;
+    const results = [];
+
+    for (const cId of finalCourseIds) {
+      const course = await Course.findById(cId);
+      if (!course) continue;
+
+      for (const tId of finalTeacherIds) {
+        const teacher = await User.findById(tId);
+        if (!teacher || teacher.role !== "teacher") continue;
+
+        for (const sec of finalSections) {
+          const normalizedSection = String(sec).trim();
+          if (!normalizedSection) continue;
+
+          course.sectionTeachers = Array.isArray(course.sectionTeachers)
+            ? course.sectionTeachers
+            : [];
+          
+          const idx = course.sectionTeachers.findIndex(
+            (st) =>
+              String(st.section).toLowerCase() === normalizedSection.toLowerCase(),
+          );
+          
+          if (idx >= 0) {
+            course.sectionTeachers[idx].teacher = tId;
+          } else {
+            course.sectionTeachers.push({
+              section: normalizedSection,
+              teacher: tId,
+            });
+          }
+        }
+      }
+
+      // Sync legacy field
+      if (course.sectionTeachers.length === 1) {
+        course.assignedTeacher = course.sectionTeachers[0].teacher;
+      } else {
+        course.assignedTeacher = null;
+      }
+
+      await course.save();
+      results.push(course);
     }
 
-    await course.save();
-    res.json(course);
+    res.json({ message: "Assignments updated", count: results.length });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
