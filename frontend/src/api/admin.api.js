@@ -29,8 +29,8 @@ export const adminAPI = {
   },
 
   // User Management
-  listUsers: async (role) => {
-    const params = role ? { role } : {};
+  listUsers: async (filters = {}) => {
+    const params = typeof filters === 'string' ? { role: filters } : filters;
     const response = await api.get('/admin/users', { params });
     return response.data;
   },

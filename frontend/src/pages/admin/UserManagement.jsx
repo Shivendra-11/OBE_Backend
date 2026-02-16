@@ -12,6 +12,14 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterRole, setFilterRole] = useState('all');
+  
+  // Advanced Student Filters
+  const [advFilters, setAdvFilters] = useState({
+    semester: '',
+    section: '',
+    academicYear: ''
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
   
@@ -21,6 +29,7 @@ const UserManagement = () => {
     email: '',
     password: '',
     role: 'student',
+    studentId: '', // Added roll number
     semester: '',
     section: '',
     academicYear: ''
@@ -29,13 +38,16 @@ const UserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [filterRole]);
+  }, [filterRole, advFilters]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const role = filterRole === 'all' ? null : filterRole;
-      const data = await adminAPI.listUsers(role);
+      const params = {
+        role: filterRole === 'all' ? null : filterRole,
+        ...advFilters
+      };
+      const data = await adminAPI.listUsers(params);
       setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -47,6 +59,10 @@ const UserManagement = () => {
   const handleInputChange = (e) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
     setError('');
+  };
+
+  const handleAdvFilterChange = (e) => {
+    setAdvFilters({ ...advFilters, [e.target.name]: e.target.value });
   };
 
   const handleCreateUser = async (e) => {
@@ -62,6 +78,7 @@ const UserManagement = () => {
         email: '',
         password: '',
         role: 'student',
+        studentId: '',
         semester: '',
         section: '',
         academicYear: ''
@@ -78,47 +95,101 @@ const UserManagement = () => {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1>User Management</h1>
-          <p>Create and manage system users</p>
+          <h1>User & Student Management</h1>
+          <p>Deploy and organize academic cohorts</p>
         </div>
         <Button onClick={() => setIsModalOpen(true)} icon="+" variant="primary">
-          Create User
+          Register User
         </Button>
       </div>
 
-      {/* Filters */}
-      <div className="filter-bar">
-        {['all', 'admin', 'teacher', 'student'].map((role) => (
-          <button
-            key={role}
-            className={`filter-chip ${filterRole === role ? 'active' : ''}`}
-            onClick={() => setFilterRole(role)}
-          >
-            {role.charAt(0).toUpperCase() + role.slice(1)}s
-          </button>
-        ))}
+      <div className="management-controls">
+        {/* Role Filters */}
+        <div className="filter-bar">
+          {['all', 'admin', 'teacher', 'student'].map((role) => (
+            <button
+              key={role}
+              className={`filter-chip ${filterRole === role ? 'active' : ''}`}
+              onClick={() => setFilterRole(role)}
+            >
+              {role.charAt(0).toUpperCase() + role.slice(1)}s
+            </button>
+          ))}
+        </div>
+
+        {/* Student Specific Filters */}
+        {filterRole === 'student' && (
+          <div className="advanced-filters glass" style={{
+            display: 'flex',
+            gap: 'var(--spacing-md)',
+            marginBottom: 'var(--spacing-lg)',
+            padding: 'var(--spacing-md)',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-secondary)'
+          }}>
+            <div className="filter-group">
+              <label className="text-xs font-semibold uppercase text-secondary">Semester</label>
+              <select 
+                name="semester" 
+                value={advFilters.semester} 
+                onChange={handleAdvFilterChange}
+                className="form-select-sm"
+              >
+                <option value="">All Semesters</option>
+                {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Semester {s}</option>)}
+              </select>
+            </div>
+            <div className="filter-group">
+              <label className="text-xs font-semibold uppercase text-secondary">Section</label>
+              <Input 
+                name="section" 
+                value={advFilters.section} 
+                onChange={handleAdvFilterChange}
+                placeholder="All Sections"
+                className="input-sm"
+              />
+            </div>
+            <div className="filter-group">
+              <label className="text-xs font-semibold uppercase text-secondary">Academic Year</label>
+              <Input 
+                name="academicYear" 
+                value={advFilters.academicYear} 
+                onChange={handleAdvFilterChange}
+                placeholder="202X-202Y"
+                className="input-sm"
+              />
+            </div>
+            <Button variant="secondary" onClick={() => setAdvFilters({ semester: '', section: '', academicYear: '' })}>
+              Reset
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* User List */}
       {loading ? (
-        <Loader size="large" text="Loading users..." />
+        <Loader size="large" text="Retrieving academic directory..." />
       ) : (
-        <Card className="user-list-card">
+        <Card className="user-list-card glass">
           <div className="table-responsive">
             <table className="user-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email</th>
+                  <th>Roll Number</th>
+                  <th>Faculty/Student Name</th>
+                  <th>Primary Email</th>
                   <th>Role</th>
-                  <th>Details</th>
-                  <th>Joined</th>
+                  <th>Cohort Details</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {users.length > 0 ? (
                   users.map((user) => (
                     <tr key={user._id}>
+                      <td style={{ fontWeight: '700', color: 'var(--primary-600)' }}>
+                        {user.studentId || '-'}
+                      </td>
                       <td>
                         <div className="user-name">
                           <div className="user-avatar-sm">
@@ -135,20 +206,23 @@ const UserManagement = () => {
                       </td>
                       <td>
                         {user.role === 'student' ? (
-                          <span className="text-secondary text-sm">
-                            Sem {user.semester} • Sec {user.section}
-                          </span>
-                        ) : '-'}
+                          <div className="text-sm">
+                            <span className="font-semibold">Sem {user.semester}</span>
+                            <span style={{ margin: '0 5px', color: 'var(--divider-color)' }}>|</span>
+                            <span>Sec {user.section}</span>
+                            <div className="text-xs text-secondary">{user.academicYear}</div>
+                          </div>
+                        ) : 'Staff Assignment'}
                       </td>
-                      <td className="text-secondary text-sm">
-                        {new Date().toLocaleDateString()} {/* Placeholder for createdAt if missing */}
+                      <td>
+                        <span className="status-indicator active">Active</span>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="text-center py-4">
-                      No users found
+                    <td colSpan="6" className="text-center py-4">
+                      No matching records in the directory
                     </td>
                   </tr>
                 )}
@@ -162,21 +236,36 @@ const UserManagement = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Create New User"
+        title="Register New System Participant"
       >
         <form onSubmit={handleCreateUser} className="create-user-form">
           {error && <div className="form-error">{error}</div>}
           
-          <Input
-            label="Name"
-            name="name"
-            value={newUser.name}
-            onChange={handleInputChange}
-            required
-          />
+          <div className="form-row">
+            <Input
+              label="Full Name"
+              name="name"
+              value={newUser.name}
+              onChange={handleInputChange}
+              required
+            />
+            <div className="form-group">
+              <label className="form-label">Role Definition</label>
+              <select
+                name="role"
+                value={newUser.role}
+                onChange={handleInputChange}
+                className="form-select"
+              >
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
           
           <Input
-            label="Email"
+            label="Institutional Email"
             type="email"
             name="email"
             value={newUser.email}
@@ -185,7 +274,7 @@ const UserManagement = () => {
           />
 
           <Input
-            label="Password"
+            label="Security Password"
             type="password"
             name="password"
             value={newUser.password}
@@ -193,25 +282,18 @@ const UserManagement = () => {
             required
           />
 
-          <div className="form-group">
-            <label className="form-label">Role</label>
-            <select
-              name="role"
-              value={newUser.role}
-              onChange={handleInputChange}
-              className="form-select"
-            >
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-
           {newUser.role === 'student' && (
-            <>
-              <div className="form-row">
+            <div className="glass-section p-4 rounded-xl" style={{ background: 'var(--bg-secondary)', padding: '15px' }}>
+              <Input
+                label="Roll Number / Student ID"
+                name="studentId"
+                value={newUser.studentId}
+                onChange={handleInputChange}
+                required
+              />
+              <div className="form-row mt-3">
                 <Input
-                  label="Semester"
+                  label="Current Semester"
                   type="number"
                   name="semester"
                   value={newUser.semester}
@@ -219,7 +301,7 @@ const UserManagement = () => {
                   required
                 />
                 <Input
-                  label="Section"
+                  label="Cohort Section"
                   name="section"
                   value={newUser.section}
                   onChange={handleInputChange}
@@ -227,22 +309,23 @@ const UserManagement = () => {
                 />
               </div>
               <Input
-                label="Academic Year"
+                label="Academic Session (Year)"
                 name="academicYear"
                 value={newUser.academicYear}
                 onChange={handleInputChange}
-                placeholder="e.g. 2023-2024"
+                placeholder="e.g. 2024-2025"
                 required
+                className="mt-3"
               />
-            </>
+            </div>
           )}
 
           <div className="modal-actions">
             <Button variant="secondary" onClick={() => setIsModalOpen(false)} type="button">
-              Cancel
+              Discard
             </Button>
-            <Button variant="primary" type="submit" loading={createLoading}>
-              Create {newUser.role.charAt(0).toUpperCase() + newUser.role.slice(1)}
+            <Button variant="primary" type="submit" loading={createLoading} style={{ background: 'linear-gradient(135deg, var(--primary-500), var(--primary-700))' }}>
+              Finalize Registration
             </Button>
           </div>
         </form>

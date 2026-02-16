@@ -102,4 +102,16 @@ export const teacherAPI = {
     const response = await api.get(`/teacher/course-attainment/${courseId}`, { params });
     return response.data;
   },
+
+  getStudents: async (courseId, section) => {
+    const params = { courseId };
+    if (section) params.section = section;
+    const response = await api.get('/teacher/students', { params });
+    return response.data;
+  },
+  
+  getCourseCOs: async (courseId) => {
+    const response = await api.get(`/teacher/course-cos/${courseId}`);
+    return response.data;
+  },
 };

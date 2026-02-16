@@ -21,6 +21,7 @@ import AIMapping from './pages/admin/AIMapping';
 import TeacherDashboard from './pages/teacher/Dashboard';
 import MyCourses from './pages/teacher/MyCourses';
 import ExamManagement from './pages/teacher/ExamManagement';
+import QuestionManagement from './pages/teacher/QuestionManagement';
 import Marksheet from './pages/teacher/Marksheet';
 import TeacherAttainment from './pages/teacher/AttainmentCalculation';
 
@@ -171,6 +172,14 @@ const AppRouter = () => {
             element={
               <ProtectedRoute allowedRoles={['teacher', 'admin']}>
                 <ExamManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="teacher/questions"
+            element={
+              <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                <QuestionManagement />
               </ProtectedRoute>
             }
           />

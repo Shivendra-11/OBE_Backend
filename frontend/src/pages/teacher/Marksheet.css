@@ -1,56 +1,71 @@
 .marksheet-card {
     padding: 0;
-    /* Full edge for table */
     overflow: hidden;
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--border-color);
+    background: var(--surface);
+    box-shadow: var(--shadow-xl);
+}
+
+.table-responsive {
+    overflow-x: auto;
+    max-height: 75vh;
 }
 
 .marksheet-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-}
-
-.marksheet-table th,
-.marksheet-table td {
-    padding: var(--spacing-sm);
-    border-bottom: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
+    font-size: var(--text-sm);
 }
 
 .marksheet-table th {
-    background: var(--surface);
+    background: var(--bg-secondary);
+    padding: var(--spacing-lg) var(--spacing-md);
+    font-weight: 800;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: var(--text-xs);
+    border-bottom: 2px solid var(--border-color);
     position: sticky;
     top: 0;
     z-index: 10;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-align: left;
+}
+
+.marksheet-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-line);
+    transition: all var(--transition-fast);
 }
 
 .sticky-col {
     position: sticky;
     left: 0;
-    background: var(--surface);
+    background: var(--surface) !important;
     z-index: 5;
     border-right: 2px solid var(--border-color);
-    min-width: 200px;
+    min-width: 280px;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.03);
 }
 
 .marksheet-table th.sticky-col {
     z-index: 15;
+    background: var(--bg-secondary) !important;
 }
 
 .q-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 60px;
+    gap: 2px;
 }
 
 .q-meta {
-    font-size: var(--text-xs);
-    color: var(--text-secondary);
-    font-weight: 400;
+    font-size: 10px;
+    color: var(--primary-600);
+    font-weight: 700;
+    opacity: 0.8;
 }
 
 .student-info {
@@ -59,48 +74,143 @@
 }
 
 .student-name {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary);
+    font-size: var(--text-base);
 }
 
 .student-email {
     font-size: var(--text-xs);
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
 }
 
 .mark-input {
-    width: 60px;
-    padding: 4px;
-    border: 1px solid transparent;
-    border-radius: var(--radius-sm);
+    width: 70px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
     text-align: center;
-    background: transparent;
+    background: var(--gray-50);
     color: var(--text-primary);
-    font-weight: 500;
+    font-weight: 700;
+    font-size: var(--text-md);
+    transition: all 0.2s;
 }
 
 .mark-input:focus {
     outline: none;
     border-color: var(--primary-500);
     background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+    transform: scale(1.1);
 }
 
 .mark-input:hover {
-    background: var(--surface-hover);
+    background: var(--gray-100);
+    border-color: var(--primary-300);
+}
+
+/* Invalid marks styling */
+.mark-input:invalid {
+    border-color: #e53e3e;
+    background: #fff5f5;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.font-bold {
+    font-weight: 800;
 }
 
 .header-actions {
     display: flex;
     gap: var(--spacing-md);
+    align-items: center;
 }
 
-/* Scrollbar styling for table */
-.table-responsive::-webkit-scrollbar {
-    height: 8px;
-    width: 8px;
+.alert {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-xl);
+    font-weight: 600;
+    animation: fadeIn 0.3s ease;
 }
 
-.table-responsive::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
+.alert-success {
+    background: #f0fff4;
+    color: #2f855a;
+    border: 1px solid #c6f6d5;
+}
+
+.alert-danger {
+    background: #fff5f5;
+    color: #c53030;
+    border: 1px solid #fed7d7;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.section-picker-mini {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.mini-chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid var(--border-color);
+    background: var(--surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mini-chip:hover {
+    background: var(--gray-100);
+}
+
+.mini-chip.active {
+    background: var(--primary-500);
+    color: white;
+    border-color: var(--primary-500);
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+}
+
+.align-center {
+    align-items: center;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.flex {
+    display: flex;
 }

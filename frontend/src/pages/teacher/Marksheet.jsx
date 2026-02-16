@@ -21,16 +21,18 @@ const Marksheet = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   
+  const [selectedSection, setSelectedSection] = useState(searchParams.get('section') || '');
+  
   // Marks state: { studentId: { questionId: value } }
   const [marks, setMarks] = useState({});
 
   useEffect(() => {
     if (examId) {
-      fetchMarksheet();
+      fetchMarksheet(selectedSection);
     } else if (courseIdParam) {
       fetchExams();
     }
-  }, [examId, courseIdParam]);
+  }, [examId, courseIdParam, selectedSection]);
 
   const fetchExams = async () => {
     setLoading(true);
@@ -45,10 +47,11 @@ const Marksheet = () => {
     }
   };
 
-  const fetchMarksheet = async () => {
+  const fetchMarksheet = async (section) => {
     setLoading(true);
+    setError('');
     try {
-      const result = await teacherAPI.getExamMarksheet(examId);
+      const result = await teacherAPI.getExamMarksheet(examId, section);
       setData(result);
       
       // Initialize marks state from result
@@ -57,20 +60,36 @@ const Marksheet = () => {
         initialMarks[student.studentId] = { ...student.marks };
       });
       setMarks(initialMarks);
+
+      // If section was auto-resolved by backend, update state
+      if (result.section && !selectedSection) {
+        setSelectedSection(result.section);
+      }
     } catch (err) {
       console.error('Error fetching marksheet:', err);
-      setError('Failed to load marksheet');
+      setError(err.response?.data?.message || 'Failed to load marksheet');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSectionChange = (section) => {
+    setSelectedSection(section);
+    setSearchParams({ examId, section });
+  };
+
   const handleExamSelect = (id) => {
     setExamId(id);
-    setSearchParams({ examId: id }); // Update URL
+    setSearchParams({ examId: id, section: selectedSection }); // Update URL
   };
 
   const handleMarkChange = (studentId, questionId, value) => {
+    // Validate if value > maxMarks
+    const question = data.questions.find(q => q._id === questionId);
+    if (question && Number(value) > question.maxMarks) {
+        return; // Block entry
+    }
+
     setMarks(prev => ({
       ...prev,
       [studentId]: {
@@ -92,14 +111,12 @@ const Marksheet = () => {
     setSuccess('');
 
     try {
-      // Transform state to payload
-      // entries: [{ studentId, marks: { qId: val } }]
       const entries = Object.entries(marks).map(([studentId, studentMarks]) => ({
         studentId,
         marks: studentMarks
       }));
 
-      await teacherAPI.submitExamMarksheet(examId, entries);
+      await teacherAPI.submitExamMarksheet(examId, entries, selectedSection);
       setSuccess('Marks saved successfully');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to save marks');
@@ -111,7 +128,7 @@ const Marksheet = () => {
   const handleCalculate = async () => {
     setCalculating(true);
     try {
-      await teacherAPI.calculateExamCO(examId);
+      await teacherAPI.calculateExamCO(examId, selectedSection);
       setSuccess('Attainment calculated successfully! Check Reports.');
     } catch (err) {
       setError('Failed to calculate attainment');
@@ -134,23 +151,20 @@ const Marksheet = () => {
            </Button>
            <h1>Select Exam to Grade</h1>
         </div>
-        <div className="exams-list-card">
-           <Card>
-             <h3>Available Exams</h3>
-             <ul className="exam-list">
-               {exams.map(exam => (
-                 <li key={exam._id} className="exam-list-item">
-                   <div className="exam-info">
-                     <span className="font-bold">{exam.name}</span>
-                     <span className="text-secondary text-sm ml-2">({exam.type})</span>
-                   </div>
-                   <Button onClick={() => handleExamSelect(exam._id)}>
-                     Select
-                   </Button>
-                 </li>
-               ))}
-             </ul>
-           </Card>
+        <div className="exams-grid">
+           {exams.map(exam => (
+             <Card key={exam._id} className="exam-card">
+               <div className="exam-header">
+                 <span className={`exam-type-badge ${exam.type.toLowerCase()}`}>
+                   {exam.type}
+                 </span>
+               </div>
+               <h3 className="exam-name">{exam.name}</h3>
+               <Button onClick={() => handleExamSelect(exam._id)} className="w-full">
+                 Open Marksheet
+               </Button>
+             </Card>
+           ))}
         </div>
       </div>
     );
@@ -172,7 +186,22 @@ const Marksheet = () => {
                ← Back to Exam List
              </Button>
            )}
-           <h1>Marksheet</h1>
+           <div className="flex align-center gap-4">
+             <h1>Marksheet</h1>
+             {data?.course?.sections?.length > 1 && (
+               <div className="section-picker-mini">
+                 {data.course.sections.map(sec => (
+                   <button 
+                     key={sec} 
+                     className={`mini-chip ${selectedSection === sec ? 'active' : ''}`}
+                     onClick={() => handleSectionChange(sec)}
+                   >
+                     Section {sec}
+                   </button>
+                 ))}
+               </div>
+             )}
+           </div>
            <p>{data ? `${data.exam.name} - ${data.course.code}` : 'Loading...'}</p>
         </div>
         <div className="header-actions">
@@ -180,16 +209,16 @@ const Marksheet = () => {
              onClick={handleCalculate} 
              variant="outline"
              loading={calculating}
-             disabled={loading}
+             disabled={loading || !data}
            >
-             ⚡ Calculate Attainment
+             ⚡ Calculate
            </Button>
            <Button 
              onClick={handleSave} 
              variant="primary" 
              loading={saving}
              icon="💾"
-             disabled={loading}
+             disabled={loading || !data}
            >
              Save Marks
            </Button>
@@ -197,7 +226,7 @@ const Marksheet = () => {
       </div>
 
       {loading ? (
-        <Loader size="large" text="Loading Marksheet..." />
+        <Loader size="large" text="Fetching student data..." />
       ) : data ? (
         <>
           {error && <div className="alert alert-danger mb-4">{error}</div>}
